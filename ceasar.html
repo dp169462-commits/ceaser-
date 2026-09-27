@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caesar Cipher Interactive Lab - Cryptography Project</title>
+    <style>
+        /* ==========================================================================
+           1. CSS VARIABLES & BASE STYLES
+           ========================================================================== */
+        :root {
+            --bg-dark: #0f141d;
+            --bg-card: rgba(23, 31, 46, 0.75);
+            --bg-card-border: rgba(212, 175, 55, 0.25);
+            --text-main: #f0f4f8;
+            --text-muted: #a0aec0;
+            --gold-primary: #d4af37;
+            --gold-hover: #f3e5ab;
+            --gold-glow: rgba(212, 175, 55, 0.15);
+            --accent-blue: #3182ce;
+            --accent-green: #38a169;
+            --accent-red: #e53e3e;
+            --border-radius: 12px;
+            --font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(212, 175, 55, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 90%, rgba(49, 130, 206, 0.05) 0%, transparent 20%);
+            background-attachment: fixed;
+            padding-bottom: 60px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--gold-primary);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        /* Header / Hero */
+        header {
+            text-align: center;
+            padding: 60px 0 40px 0;
+            border-bottom: 1px solid var(--bg-card-border);
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        header::after {
+            content: "🏛️  AVE CESAR • MODULO 26 ALPHABET SHIFT  🏛️";
+            display: block;
+            color: var(--gold-primary);
+            opacity: 0.4;
+            font-size: 1rem;
+            letter-spacing: 3px;
+            margin-top: 15px;
+        }
+
+        .title {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+        }
+
+        .intro-text {
+            max-width: 750px;
+            margin: 0 auto 25px auto;
+            font-size: 1.05rem;
+        }
+
+        /* Glass Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--gold-hover);
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 14px;
+            background: rgba(15, 20, 29, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 8px var(--gold-glow);
+        }
+
+        .shift-input-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .shift-input-group input[type="number"] {
+            width: 100px;
+            padding: 10px;
+            background: rgba(15, 20, 29, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--gold-primary);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--gold-hover);
+            box-shadow: 0 0 12px var(--gold-glow);
+        }
+
+        .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-accent {
+            background-color: var(--accent-blue);
+            color: #fff;
+        }
+
+        .btn-accent:hover {
+            background-color: #2b6cb0;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        /* Pipeline Visualizer */
+        .pipeline {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .pipeline-step {
+            background: rgba(10, 14, 23, 0.6);
+            border-left: 4px solid var(--gold-primary);
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .pipeline-step h4 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gold-primary);
+            margin-bottom: 5px;
+        }
+
+        .pipeline-output {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+            color: #fff;
+            word-break: break-all;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+
+        .mapping-flow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .flow-card {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .flow-card .char {
+            color: var(--gold-hover);
+            font-weight: bold;
+        }
+
+        .flow-card .arrow {
+            color: var(--text-muted);
+            margin: 0 4px;
+        }
+
+        .flow-card .val {
+            color: #63b3ed;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            background-color: rgba(229, 62, 62, 0.15);
+            border: 1px solid var(--accent-red);
+            color: #feb2b2;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .title {
+                font-size: 2rem;
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--bg-card-border);
+            margin-top: 40px;
+        }
+
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--gold-primary);
+            color: #000;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 8px;
+            padding: 12px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- HERO HEADER -->
+        <header>
+            <h1 class="title">Caesar Cipher Interactive Demonstration</h1>
+            <p class="subtitle">BSc IT Cryptography Project</p>
+            <p class="intro-text">
+                An interactive educational application demonstrating standard Caesar shift cryptography using Modular Arithmetic $E(x) = (x + K) \pmod{26}$.
+            </p>
+            <a href="#lab" class="btn btn-primary">🔐 Open Encryption Lab</a>
+        </header>
+
+        <!-- ERROR ALERT -->
+        <div id="errorAlert" class="alert" role="alert"></div>
+
+        <!-- LAB SECTION -->
+        <div id="lab" class="grid-2">
+            
+            <!-- ENCRYPTION MODULE -->
+            <div class="card">
+                <h2>🔐 Encryption Lab</h2>
+                <p>Convert plaintext letters into shifted ciphertext using a custom key.</p>
+                
+                <div class="form-group">
+                    <label for="encryptInput">Enter Plaintext Message:</label>
+                    <textarea id="encryptInput" rows="3" placeholder="e.g., HELLO WORLD"></textarea>
+                </div>
+
+                <div class="shift-input-group">
+                    <label for="shiftKey">Shift Key (1-25):</label>
+                    <input type="number" id="shiftKey" value="3" min="1" max="25">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="processEncryption()">🔐 Encrypt</button>
+                    <button class="btn btn-secondary" onclick="loadExample()">🎲 Try Example</button>
+                    <button class="btn btn-secondary" onclick="clearEncrypt()">↻ Clear</button>
+                </div>
+
+                <!-- Encryption Output Pipeline -->
+                <div id="encryptResult" class="pipeline" style="display: none;">
+                    <div class="pipeline-step">
+                        <h4>Step 1: Original Text</h4>
+                        <div id="encStep1" class="pipeline-output"></div>
+                    </div>
+
+                    <div class="pipeline-step">
+                        <h4>Step 2: Alphabetic Index Mapping ($A=0 \dots Z=25$)</h4>
+                        <div id="encStep2" class="mapping-flow"></div>
+                    </div>
+
+                    <div class="pipeline-step">
+                        <h4>Step 3: Shift Transformation $(x + K) \pmod{26}$</h4>
+                        <div id="encStep3" class="pipeline-output"></div>
+                    </div>
+
+                    <div class="pipeline-step">
+                        <h4>Step 4: Encrypted Ciphertext</h4>
+                        <div id="encStep4" class="pipeline-output"></div>
+                        <div style="margin-top: 10px;">
+                            <button class="btn btn-secondary btn-small" onclick="copyToClipboard('encStep4')">📋 Copy Ciphertext</button>
+                            <button class="btn btn-secondary btn-small" onclick="sendToDecrypt()">➡️ Send to Decryption Lab</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DECRYPTION MODULE -->
+            <div class="card">
+                <h2>🔓 Decryption Lab</h2>
+                <p>Revert Caesar ciphertext back into plaintext by reversing the shift key.</p>
+                
+                <div class="form-group">
+                    <label for="decryptInput">Enter Ciphertext Message:</label>
+                    <textarea id="decryptInput" rows="3" placeholder="e.g., KHOOR ZRUOG"></textarea>
+                </div>
+
+                <div class="shift-input-group">
+                    <label for="unshiftKey">Shift Key (Must match sender):</label>
+                    <input type="number" id="unshiftKey" value="3" min="1" max="25">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-accent" onclick="processDecryption()">🔓 Decrypt</button>
+                    <button class="btn btn-secondary" onclick="clearDecrypt()">↻ Clear</button>
+                </div>
+
+                <!-- Decryption Output Pipeline -->
+                <div id="decryptResult" class="pipeline" style="display: none;">
+                    <div class="pipeline-step">
+                        <h4>Step 1: Ciphertext Input</h4>
+                        <div id="decStep1" class="pipeline-output"></div>
+                    </div>
+
+                    <div class="pipeline-step">
+                        <h4>Step 2: Inverse Shift Transformation $(x - K + 26) \pmod{26}$</h4>
+                        <div id="decStep2" class="pipeline-output"></div>
+                    </div>
+
+                    <div class="pipeline-step">
+                        <h4>Step 3: Index Mapping Back to Characters</h4>
+                        <div id="decStep3" class="mapping-flow"></div>
+                    </div>
+
+                    <div class="pipeline-step">
+                        <h4>Step 4: Recovered Plaintext</h4>
+                        <div id="decStep4" class="pipeline-output"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- LIVE EVALUATION CHALLENGE -->
+        <div class="card" style="border-color: var(--gold-primary);">
+            <h2>🎯 Live Examiner Challenge</h2>
+            <p>Test end-to-end encryption/decryption in real time:</p>
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
+                <ol style="margin-left: 20px; color: var(--text-muted); font-size: 0.95rem;">
+                    <li>Enter any custom plaintext in the Encryption Lab above.</li>
+                    <li>Click <strong>🔐 Encrypt</strong> to process the shift operation.</li>
+                    <li>Click <strong>➡️ Send to Decryption Lab</strong>.</li>
+                    <li>Click <strong>🔓 Decrypt</strong> to verify complete reconstruction of the message.</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- CIPHER ALGORITHM SPECIFICATION -->
+        <div class="card">
+            <h2>⚙️ Algorithm Mechanics: Caesar Cipher</h2>
+            <div class="grid-2">
+                <div>
+                    <h3 style="margin-bottom:10px;">Encryption Formula</h3>
+                    <p>
+                        $$E_n(x) = (x + n) \pmod{26}$$
+                        Where $x$ is the zero-based alphabet index of the letter ($A=0, B=1, \dots, Z=25$) and $n$ is the shift key.
+                    </p>
+                </div>
+                <div>
+                    <h3 style="margin-bottom:10px;">Decryption Formula</h3>
+                    <p>
+                        $$D_n(x) = (x - n + 26) \pmod{26}$$
+                        Guarantees non-negative results before modulo reduction.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+            <p>BSc IT Cryptography Project Submission | Standard Caesar Cipher Implementation</p>
+            <p style="font-size: 0.8rem; margin-top: 5px; opacity: 0.6;">Fully Offline Capable • Built with HTML5, CSS3, Vanilla JS</p>
+        </footer>
+    </div>
+
+    <!-- NOTIFICATION TOAST -->
+    <div id="toast">Copied to Clipboard!</div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        /* ==========================================================================
+           2. HELPER FUNCTIONS
+           ========================================================================== */
+        function showError(msg) {
+            const el = document.getElementById('errorAlert');
+            el.innerText = msg;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 4000);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Ciphertext copied to clipboard!");
+            }).catch(err => {
+                showError("Failed to copy automatically.");
+            });
+        }
+
+        /* ==========================================================================
+           3. CORE CAESAR ENCRYPTION ENGINE
+           ========================================================================== */
+        function processEncryption() {
+            const input = document.getElementById('encryptInput').value;
+            const key = parseInt(document.getElementById('shiftKey').value, 10);
+
+            if (!input.trim()) {
+                showError("Please enter a plaintext message.");
+                return;
+            }
+
+            if (isNaN(key) || key < 1 || key > 25) {
+                showError("Shift key must be between 1 and 25.");
+                return;
+            }
+
+            let step1_Original = input;
+            let step2_FlowHTML = '';
+            let step3_ShiftedIndexes = [];
+            let step4_Ciphertext = '';
+
+            for (let i = 0; i < input.length; i++) {
+                let char = input[i];
+                let code = input.charCodeAt(i);
+
+                // Uppercase A-Z (65-90)
+                if (code >= 65 && code <= 90) {
+                    let baseIdx = code - 65;
+                    let shiftedIdx = (baseIdx + key) % 26;
+                    let newChar = String.fromCharCode(shiftedIdx + 65);
+
+                    step2_FlowHTML += `<div class="flow-card"><span class="char">${char}</span><span class="arrow">→</span><span class="val">${baseIdx}</span></div>`;
+                    step3_ShiftedIndexes.push(shiftedIdx);
+                    step4_Ciphertext += newChar;
+                }
+                // Lowercase a-z (97-122)
+                else if (code >= 97 && code <= 122) {
+                    let baseIdx = code - 97;
+                    let shiftedIdx = (baseIdx + key) % 26;
+                    let newChar = String.fromCharCode(shiftedIdx + 97);
+
+                    step2_FlowHTML += `<div class="flow-card"><span class="char">${char}</span><span class="arrow">→</span><span class="val">${baseIdx}</span></div>`;
+                    step3_ShiftedIndexes.push(shiftedIdx);
+                    step4_Ciphertext += newChar;
+                }
+                // Non-alphabetic symbols/spaces
+                else {
+                    let displayChar = char === ' ' ? '[SPACE]' : char;
+                    step2_FlowHTML += `<div class="flow-card"><span class="char">${displayChar}</span><span class="arrow">→</span><span class="val">${char}</span></div>`;
+                    step3_ShiftedIndexes.push(char);
+                    step4_Ciphertext += char;
+                }
+            }
+
+            document.getElementById('encStep1').innerText = step1_Original;
+            document.getElementById('encStep2').innerHTML = step2_FlowHTML;
+            document.getElementById('encStep3').innerText = step3_ShiftedIndexes.join(' ');
+            document.getElementById('encStep4').innerText = step4_Ciphertext;
+
+            document.getElementById('encryptResult').style.display = 'flex';
+        }
+
+        /* ==========================================================================
+           4. CORE CAESAR DECRYPTION ENGINE
+           ========================================================================== */
+        function processDecryption() {
+            const input = document.getElementById('decryptInput').value;
+            const key = parseInt(document.getElementById('unshiftKey').value, 10);
+
+            if (!input.trim()) {
+                showError("Please enter ciphertext to decrypt.");
+                return;
+            }
+
+            if (isNaN(key) || key < 1 || key > 25) {
+                showError("Shift key must be between 1 and 25.");
+                return;
+            }
+
+            let step1_Input = input;
+            let step2_UnshiftedIndexes = [];
+            let step3_FlowHTML = '';
+            let step4_Plaintext = '';
+
+            for (let i = 0; i < input.length; i++) {
+                let char = input[i];
+                let code = input.charCodeAt(i);
+
+                // Uppercase A-Z (65-90)
+                if (code >= 65 && code <= 90) {
+                    let shiftedIdx = code - 65;
+                    let origIdx = (shiftedIdx - key + 26) % 26;
+                    let origChar = String.fromCharCode(origIdx + 65);
+
+                    step2_UnshiftedIndexes.push(origIdx);
+                    step3_FlowHTML += `<div class="flow-card"><span class="val">${origIdx}</span><span class="arrow">→</span><span class="char">${origChar}</span></div>`;
+                    step4_Plaintext += origChar;
+                }
+                // Lowercase a-z (97-122)
+                else if (code >= 97 && code <= 122) {
+                    let shiftedIdx = code - 97;
+                    let origIdx = (shiftedIdx - key + 26) % 26;
+                    let origChar = String.fromCharCode(origIdx + 97);
+
+                    step2_UnshiftedIndexes.push(origIdx);
+                    step3_FlowHTML += `<div class="flow-card"><span class="val">${origIdx}</span><span class="arrow">→</span><span class="char">${origChar}</span></div>`;
+                    step4_Plaintext += origChar;
+                }
+                // Non-alphabetic symbols/spaces
+                else {
+                    let displayChar = char === ' ' ? '[SPACE]' : char;
+                    step2_UnshiftedIndexes.push(char);
+                    step3_FlowHTML += `<div class="flow-card"><span class="val">${char}</span><span class="arrow">→</span><span class="char">${displayChar}</span></div>`;
+                    step4_Plaintext += char;
+                }
+            }
+
+            document.getElementById('decStep1').innerText = step1_Input;
+            document.getElementById('decStep2').innerText = step2_UnshiftedIndexes.join(' ');
+            document.getElementById('decStep3').innerHTML = step3_FlowHTML;
+            document.getElementById('decStep4').innerText = step4_Plaintext;
+
+            document.getElementById('decryptResult').style.display = 'flex';
+        }
+
+        /* ==========================================================================
+           5. UTILITIES
+           ========================================================================== */
+        function loadExample() {
+            document.getElementById('encryptInput').value = "HELLO WORLD";
+            document.getElementById('shiftKey').value = "3";
+            processEncryption();
+        }
+
+        function clearEncrypt() {
+            document.getElementById('encryptInput').value = '';
+            document.getElementById('encryptResult').style.display = 'none';
+        }
+
+        function clearDecrypt() {
+            document.getElementById('decryptInput').value = '';
+            document.getElementById('decryptResult').style.display = 'none';
+        }
+
+        function sendToDecrypt() {
+            const cipherText = document.getElementById('encStep4').innerText;
+            const keyVal = document.getElementById('shiftKey').value;
+            
+            document.getElementById('decryptInput').value = cipherText;
+            document.getElementById('unshiftKey').value = keyVal;
+            
+            document.getElementById('decryptInput').scrollIntoView({ behavior: 'smooth' });
+            processDecryption();
+        }
+    </script>
+</body>
+</html>
